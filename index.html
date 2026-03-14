@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Картки Español</title>
+<style>
+:root {
+  --bg:#f3f5f7; --card:#ffffff; --text:#152238; --muted:#718096;
+  --green:#7acb36; --blue:#57a8e6; --lightgreen:#dff2bf; --lightred:#f3d9d9;
+  --red:#ec6b6b; --border:#e7ebef; --shadow:0 10px 28px rgba(30,41,59,.08);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body {
+  margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:var(--bg); color:var(--text); padding:20px 16px 32px;
+}
+.app { max-width:560px; margin:0 auto; }
+h1 { font-size:30px; margin:8px 0 18px; }
+.panel, .card {
+  background:var(--card); border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow);
+}
+.panel { padding:14px; margin-bottom:14px; }
+.toprow { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:12px; }
+.stat {
+  background:#f8fafc; border:1px solid var(--border); border-radius:16px; padding:10px 8px; text-align:center;
+}
+.stat .num { font-size:22px; font-weight:800; }
+.stat .lab { font-size:12px; color:var(--muted); margin-top:4px; }
+.progresswrap { margin-top:12px; }
+.progresslabels { display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:8px; }
+.progress { height:12px; background:#ecf0f4; border-radius:999px; overflow:hidden; }
+.progressbar { height:100%; width:0%; background:linear-gradient(90deg,#7acb36,#5ab42b); transition:width .25s ease; }
+.card { padding:18px; }
+.modebar {
+  background:#f3f5f7; border-radius:18px; padding:12px; text-align:center; font-size:28px; margin-bottom:16px; border:1px solid var(--border);
+}
+.word { font-size:64px; font-weight:900; text-align:center; margin:26px 0; word-break:break-word; }
+.translation {
+  display:none; background:#f8fafc; border:1px solid var(--border); border-radius:18px; padding:16px; margin-bottom:14px; text-align:center;
+}
+.translation .label { font-size:13px; color:var(--muted); margin-bottom:6px; }
+.translation .value { font-size:30px; font-weight:800; }
+.translation .sub { font-size:14px; color:var(--muted); margin-top:6px; }
+button {
+  width:100%; min-height:58px; border:none; border-radius:18px; font-size:18px; font-weight:800; cursor:pointer; margin-top:10px;
+}
+button:active { transform:scale(.99); }
+.row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.btn-show { background:var(--green); color:white; }
+.btn-speak { background:var(--blue); color:white; }
+.btn-know { background:#cde9ab; color:#2b4c0c; }
+.btn-again { background:#eed4d4; color:#744; }
+.btn-ghost { background:#f3f5f7; color:var(--text); border:1px solid var(--border); }
+.small { color:var(--muted); font-size:13px; text-align:center; margin-top:10px; }
+@media (max-width:520px) {
+  .stats{ grid-template-columns:1fr 1fr; }
+  .row2, .toprow { grid-template-columns:1fr; }
+  .word{ font-size:52px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>Картки Español</h1>
+
+  <div class="panel">
+    <div class="toprow">
+      <button class="btn-ghost" id="modeBtn" type="button">🇪🇸 → 🇺🇦</button>
+      <button class="btn-ghost" id="shuffleBtn" type="button">🔀 Перемішування: увімк.</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="num" id="todayCount">0</div><div class="lab">Сьогодні</div></div>
+      <div class="stat"><div class="num" id="knownCount">0</div><div class="lab">Знаю</div></div>
+      <div class="stat"><div class="num" id="reviewCount">0</div><div class="lab">Повторити</div></div>
+      <div class="stat"><div class="num" id="totalCount">0</div><div class="lab">Усього</div></div>
+    </div>
+
+    <div class="progresswrap">
+      <div class="progresslabels">
+        <span id="statusText">Нова картка</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="progress"><div class="progressbar" id="progressBar"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="modebar" id="modeBar">🇪🇸 → 🇺🇦</div>
+
+    <div class="word" id="word">hablar</div>
+
+    <div class="translation" id="translationBox">
+      <div class="label">Переклад</div>
+      <div class="value" id="translation">говорити</div>
+      <div class="sub">Озвучення завжди читає іспанське слово</div>
+    </div>
+
+    <button class="btn-show" id="showBtn" type="button">Показати переклад</button>
+    <button class="btn-speak" id="speakBtn" type="button">🔊 Озвучити</button>
+
+    <div class="row2">
+      <button class="btn-know" id="knowBtn" type="button">Знаю</button>
+      <button class="btn-again" id="againBtn" type="button">Не знаю</button>
+    </div>
+
+    <div class="row2">
+      <button class="btn-ghost" id="resetBtn" type="button">Скинути прогрес</button>
+      <button class="btn-ghost" id="restartTodayBtn" type="button">Новий раунд</button>
+    </div>
+
+    <div class="small">У додатку вже 210 дієслів. Порядок можна перемішувати, а повторення працюють автоматично.</div>
+  </div>
+</div>
+
+<script>
+const CARDS = [{"es": "hablar", "ua": "говорити"}, {"es": "comer", "ua": "їсти"}, {"es": "vivir", "ua": "жити"}, {"es": "ser", "ua": "бути"}, {"es": "estar", "ua": "бути, перебувати"}, {"es": "tener", "ua": "мати"}, {"es": "hacer", "ua": "робити"}, {"es": "ir", "ua": "йти, їхати"}, {"es": "venir", "ua": "приходити"}, {"es": "ver", "ua": "бачити"}, {"es": "dar", "ua": "давати"}, {"es": "saber", "ua": "знати"}, {"es": "querer", "ua": "хотіти"}, {"es": "poder", "ua": "могти"}, {"es": "deber", "ua": "бути повинним"}, {"es": "poner", "ua": "класти, ставити"}, {"es": "parecer", "ua": "здаватися"}, {"es": "quedar", "ua": "залишатися"}, {"es": "creer", "ua": "вірити, вважати"}, {"es": "haber", "ua": "матися, бути"}, {"es": "llevar", "ua": "нести, носити"}, {"es": "dejar", "ua": "залишати"}, {"es": "seguir", "ua": "слідувати, продовжувати"}, {"es": "encontrar", "ua": "знаходити"}, {"es": "llamar", "ua": "називати, дзвонити"}, {"es": "pensar", "ua": "думати"}, {"es": "salir", "ua": "виходити"}, {"es": "volver", "ua": "повертатися"}, {"es": "tomar", "ua": "брати, приймати"}, {"es": "conocer", "ua": "знати, бути знайомим"}, {"es": "sentir", "ua": "відчувати"}, {"es": "contar", "ua": "рахувати, розповідати"}, {"es": "empezar", "ua": "починати"}, {"es": "esperar", "ua": "чекати, сподіватися"}, {"es": "buscar", "ua": "шукати"}, {"es": "existir", "ua": "існувати"}, {"es": "entrar", "ua": "входити"}, {"es": "trabajar", "ua": "працювати"}, {"es": "escribir", "ua": "писати"}, {"es": "leer", "ua": "читати"}, {"es": "abrir", "ua": "відкривати"}, {"es": "cerrar", "ua": "закривати"}, {"es": "entender", "ua": "розуміти"}, {"es": "aprender", "ua": "вивчати"}, {"es": "decir", "ua": "говорити, сказати"}, {"es": "oír", "ua": "чути"}, {"es": "mirar", "ua": "дивитися"}, {"es": "ayudar", "ua": "допомагати"}, {"es": "comprar", "ua": "купувати"}, {"es": "usar", "ua": "використовувати"}, {"es": "pasar", "ua": "проходити, проводити"}, {"es": "necesitar", "ua": "потребувати"}, {"es": "recordar", "ua": "пам’ятати"}, {"es": "olvidar", "ua": "забувати"}, {"es": "pagar", "ua": "платити"}, {"es": "recibir", "ua": "отримувати"}, {"es": "cambiar", "ua": "змінювати"}, {"es": "explicar", "ua": "пояснювати"}, {"es": "preguntar", "ua": "питати"}, {"es": "responder", "ua": "відповідати"}, {"es": "llevarse", "ua": "забирати з собою"}, {"es": "dormir", "ua": "спати"}, {"es": "despertar", "ua": "будити, прокидатися"}, {"es": "lavar", "ua": "мити"}, {"es": "vestir", "ua": "одягати"}, {"es": "vestirse", "ua": "одягатися"}, {"es": "caminar", "ua": "ходити пішки"}, {"es": "correr", "ua": "бігти"}, {"es": "subir", "ua": "підніматися"}, {"es": "bajar", "ua": "спускатися"}, {"es": "viajar", "ua": "подорожувати"}, {"es": "nacer", "ua": "народжуватися"}, {"es": "morir", "ua": "помирати"}, {"es": "ganar", "ua": "вигравати, заробляти"}, {"es": "perder", "ua": "втрачати, програвати"}, {"es": "abrirse", "ua": "відкриватися"}, {"es": "cerrarse", "ua": "закриватися"}, {"es": "caer", "ua": "падати"}, {"es": "romper", "ua": "ламати"}, {"es": "romperse", "ua": "ламатися"}, {"es": "cocinar", "ua": "готувати"}, {"es": "beber", "ua": "пити"}, {"es": "probar", "ua": "пробувати"}, {"es": "servir", "ua": "подавати, служити"}, {"es": "escuchar", "ua": "слухати"}, {"es": "repetir", "ua": "повторювати"}, {"es": "estudiar", "ua": "вчитися"}, {"es": "enseñar", "ua": "навчати"}, {"es": "jugar", "ua": "грати"}, {"es": "bailar", "ua": "танцювати"}, {"es": "cantar", "ua": "співати"}, {"es": "descansar", "ua": "відпочивати"}, {"es": "mandar", "ua": "наказувати, надсилати"}, {"es": "enviar", "ua": "відправляти"}, {"es": "mostrar", "ua": "показувати"}, {"es": "limpiar", "ua": "чистити, прибирати"}, {"es": "arreglar", "ua": "ремонтувати, приводити до ладу"}, {"es": "preparar", "ua": "готувати, підготовляти"}, {"es": "visitar", "ua": "відвідувати"}, {"es": "volver a", "ua": "знову"}, {"es": "reservar", "ua": "бронювати"}, {"es": "alquilar", "ua": "орендувати"}, {"es": "vender", "ua": "продавати"}, {"es": "costar", "ua": "коштувати"}, {"es": "medir", "ua": "вимірювати"}, {"es": "pesar", "ua": "важити"}, {"es": "elegir", "ua": "обирати"}, {"es": "preferir", "ua": "надавати перевагу"}, {"es": "pedir", "ua": "просити, замовляти"}, {"es": "ofrecer", "ua": "пропонувати"}, {"es": "aceptar", "ua": "приймати, погоджуватися"}, {"es": "rechazar", "ua": "відхиляти"}, {"es": "firmar", "ua": "підписувати"}, {"es": "abrigar", "ua": "утеплювати"}, {"es": "encender", "ua": "вмикати, запалювати"}, {"es": "apagar", "ua": "вимикати, гасити"}, {"es": "conducir", "ua": "керувати автомобілем"}, {"es": "aparcar", "ua": "паркувати"}, {"es": "cruzar", "ua": "перетинати"}, {"es": "girar", "ua": "повертати"}, {"es": "esperarse", "ua": "очікувати"}, {"es": "reunir", "ua": "збирати"}, {"es": "reunirse", "ua": "зустрічатися"}, {"es": "planear", "ua": "планувати"}, {"es": "decidir", "ua": "вирішувати"}, {"es": "intentar", "ua": "намагатися"}, {"es": "lograr", "ua": "досягати"}, {"es": "comenzar", "ua": "починати"}, {"es": "terminar", "ua": "закінчувати"}, {"es": "acabar", "ua": "закінчувати"}, {"es": "continuar", "ua": "продовжувати"}, {"es": "mejorar", "ua": "покращувати"}, {"es": "empeorar", "ua": "погіршувати"}, {"es": "crecer", "ua": "рости"}, {"es": "disminuir", "ua": "зменшуватися"}, {"es": "subrayar", "ua": "підкреслювати"}, {"es": "anotar", "ua": "записувати"}, {"es": "guardar", "ua": "зберігати"}, {"es": "borrar", "ua": "стирати, видаляти"}, {"es": "imprimir", "ua": "друкувати"}, {"es": "cargar", "ua": "заряджати, завантажувати"}, {"es": "descargar", "ua": "завантажувати, розвантажувати"}, {"es": "abrirse paso", "ua": "прокладати собі шлях"}, {"es": "compartir", "ua": "ділитися"}, {"es": "tocar", "ua": "торкатися, грати на інструменті"}, {"es": "esperanzar", "ua": "надихати на надію"}, {"es": "odiar", "ua": "ненавидіти"}, {"es": "amar", "ua": "любити"}, {"es": "gustar", "ua": "подобатися"}, {"es": "encantar", "ua": "дуже подобатися"}, {"es": "interesar", "ua": "цікавити"}, {"es": "molestar", "ua": "дратувати, заважати"}, {"es": "preocupar", "ua": "турбувати"}, {"es": "alegrar", "ua": "радувати"}, {"es": "sonreír", "ua": "усміхатися"}, {"es": "reír", "ua": "сміятися"}, {"es": "llorar", "ua": "плакати"}, {"es": "gritar", "ua": "кричати"}, {"es": "callar", "ua": "мовчати"}, {"es": "callarse", "ua": "замовкнути"}, {"es": "proteger", "ua": "захищати"}, {"es": "cuidar", "ua": "доглядати"}, {"es": "curar", "ua": "лікувати"}, {"es": "doler", "ua": "боліти"}, {"es": "mejorarse", "ua": "одужувати"}, {"es": "sentarse", "ua": "сідати"}, {"es": "levantarse", "ua": "вставати"}, {"es": "acostarse", "ua": "лягати"}, {"es": "ducharse", "ua": "приймати душ"}, {"es": "peinarse", "ua": "розчісуватися"}, {"es": "afeitarse", "ua": "голитися"}, {"es": "maquillarse", "ua": "фарбуватися"}, {"es": "casarse", "ua": "одружуватися"}, {"es": "separarse", "ua": "розлучатися"}, {"es": "invitar", "ua": "запрошувати"}, {"es": "felicitar", "ua": "вітати"}, {"es": "celebrar", "ua": "святкувати"}, {"es": "nadar", "ua": "плавати"}, {"es": "montar", "ua": "сідати верхи, монтувати"}, {"es": "esquiar", "ua": "кататися на лижах"}, {"es": "dibujar", "ua": "малювати"}, {"es": "pintar", "ua": "фарбувати, малювати"}, {"es": "crear", "ua": "створювати"}, {"es": "construir", "ua": "будувати"}, {"es": "derribar", "ua": "зносити"}, {"es": "cerrar con llave", "ua": "замикати"}, {"es": "abrir con llave", "ua": "відмикати"}, {"es": "valer", "ua": "коштувати, бути вартим"}, {"es": "quitar", "ua": "знімати, прибирати"}, {"es": "devolver", "ua": "повертати"}, {"es": "traer", "ua": "приносити"}, {"es": "sacar", "ua": "виймати"}, {"es": "meter", "ua": "вкладати"}, {"es": "llenar", "ua": "наповнювати"}, {"es": "vaciar", "ua": "спорожнювати"}, {"es": "romperse", "ua": "розбиватися"}, {"es": "prestar", "ua": "позичати комусь"}, {"es": "tomar prestado", "ua": "позичати собі"}, {"es": "prometer", "ua": "обіцяти"}, {"es": "cumplir", "ua": "виконувати"}, {"es": "faltar", "ua": "бракувати"}, {"es": "sobrar", "ua": "залишатися зайвим"}, {"es": "suceder", "ua": "траплятися"}, {"es": "ocurrir", "ua": "спадати на думку, траплятися"}, {"es": "depender", "ua": "залежати"}, {"es": "comparar", "ua": "порівнювати"}, {"es": "señalar", "ua": "вказувати"}, {"es": "traducir", "ua": "перекладати"}, {"es": "revisar", "ua": "перевіряти"}, {"es": "corregir", "ua": "виправляти"}];
+const STORAGE_KEY = "spanish-cards-ua-v2";
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function defaultState() {
+  const now = Date.now();
+  return {
+    direction: "es-ua",
+    shuffle: true,
+    currentId: null,
+    revealed: false,
+    today: todayStr(),
+    stats: { seenToday: 0, knownToday: 0 },
+    cards: CARDS.map((card, idx) => ({
+      id: idx,
+      es: card.es,
+      ua: card.ua,
+      level: 0,
+      due: now,
+      seen: 0,
+      known: 0
+    }))
+  };
+}
+
+function loadState() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!raw || !Array.isArray(raw.cards)) return defaultState();
+    if (raw.today !== todayStr()) {
+      raw.today = todayStr();
+      raw.stats = { seenToday: 0, knownToday: 0 };
+    }
+    raw.direction = raw.direction || "es-ua";
+    raw.shuffle = raw.shuffle !== false;
+    raw.revealed = !!raw.revealed;
+    raw.currentId = typeof raw.currentId === "number" ? raw.currentId : null;
+    return raw;
+  } catch(e) {
+    return defaultState();
+  }
+}
+
+let state = loadState();
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+const wordEl = document.getElementById("word");
+const translationEl = document.getElementById("translation");
+const translationBox = document.getElementById("translationBox");
+const modeBtn = document.getElementById("modeBtn");
+const modeBar = document.getElementById("modeBar");
+const shuffleBtn = document.getElementById("shuffleBtn");
+const todayCount = document.getElementById("todayCount");
+const knownCount = document.getElementById("knownCount");
+const reviewCount = document.getElementById("reviewCount");
+const totalCount = document.getElementById("totalCount");
+const progressBar = document.getElementById("progressBar");
+const progressText = document.getElementById("progressText");
+const statusText = document.getElementById("statusText");
+
+function dueCards() {
+  const now = Date.now();
+  return state.cards.filter(c => c.due <= now);
+}
+
+function currentCard() {
+  const due = dueCards();
+  if (!due.length) {
+    state.cards.forEach(c => c.due = 0);
+    state.currentId = null;
+    saveState();
+    return currentCard();
+  }
+  let queue = state.shuffle ? shuffleArray(due) : due.slice().sort((a,b) => a.due - b.due || a.id - b.id);
+  const current = queue.find(c => c.id === state.currentId);
+  if (current) return current;
+  state.currentId = queue[0].id;
+  saveState();
+  return queue[0];
+}
+
+function cardStatusLabel(card) {
+  if (card.level === 0) return "Нова картка";
+  if (card.level === 1) return "Швидкий повтор";
+  if (card.level <= 3) return "Закріплення";
+  return "Добре запам’яталось";
+}
+
+function updateStats() {
+  const total = state.cards.length;
+  const mastered = state.cards.filter(c => c.level >= 5).length;
+  const due = dueCards().length;
+  todayCount.textContent = state.stats.seenToday;
+  knownCount.textContent = state.stats.knownToday;
+  reviewCount.textContent = due;
+  totalCount.textContent = total;
+  const percent = Math.round((mastered / total) * 100);
+  progressBar.style.width = percent + "%";
+  progressText.textContent = percent + "%";
+}
+
+function render() {
+  const card = currentCard();
+  updateStats();
+  if (state.direction === "es-ua") {
+    modeBtn.textContent = "🇪🇸 → 🇺🇦";
+    modeBar.textContent = "🇪🇸 → 🇺🇦";
+    wordEl.textContent = card.es;
+    translationEl.textContent = card.ua;
+  } else {
+    modeBtn.textContent = "🇺🇦 → 🇪🇸";
+    modeBar.textContent = "🇺🇦 → 🇪🇸";
+    wordEl.textContent = card.ua;
+    translationEl.textContent = card.es;
+  }
+  translationBox.style.display = state.revealed ? "block" : "none";
+  shuffleBtn.textContent = "🔀 Перемішування: " + (state.shuffle ? "увімк." : "вимк.");
+  statusText.textContent = cardStatusLabel(card);
+}
+
+function reveal() {
+  state.revealed = true;
+  saveState();
+  render();
+}
+
+function scheduleNext(card, knewIt) {
+  const now = Date.now();
+  if (knewIt) {
+    card.level += 1;
+    card.known += 1;
+    if (card.level === 1) card.due = now + 20 * 60 * 1000;
+    else if (card.level === 2) card.due = now + 6 * 60 * 60 * 1000;
+    else if (card.level === 3) card.due = now + 1 * 24 * 60 * 60 * 1000;
+    else if (card.level === 4) card.due = now + 3 * 24 * 60 * 60 * 1000;
+    else if (card.level === 5) card.due = now + 7 * 24 * 60 * 60 * 1000;
+    else card.due = now + 14 * 24 * 60 * 60 * 1000;
+  } else {
+    card.level = Math.max(0, card.level - 1);
+    card.due = now + 2 * 60 * 1000;
+  }
+}
+
+function answer(knewIt) {
+  const card = currentCard();
+  card.seen += 1;
+  state.stats.seenToday += 1;
+  if (knewIt) state.stats.knownToday += 1;
+  scheduleNext(card, knewIt);
+  state.currentId = null;
+  state.revealed = false;
+  saveState();
+  render();
+}
+
+function speakSpanish() {
+  const card = currentCard();
+  const utter = new SpeechSynthesisUtterance(card.es);
+  utter.lang = "es-ES";
+  utter.rate = 0.92;
+  try { speechSynthesis.cancel(); } catch(e) {}
+  speechSynthesis.speak(utter);
+}
+
+document.getElementById("showBtn").addEventListener("click", reveal);
+document.getElementById("speakBtn").addEventListener("click", speakSpanish);
+document.getElementById("knowBtn").addEventListener("click", () => answer(true));
+document.getElementById("againBtn").addEventListener("click", () => {
+  if (!state.revealed) {
+    state.revealed = true;
+    saveState();
+    render();
+    setTimeout(() => answer(false), 1200);
+  } else {
+    answer(false);
+  }
+});
+modeBtn.addEventListener("click", () => {
+  state.direction = state.direction === "es-ua" ? "ua-es" : "es-ua";
+  state.revealed = false;
+  saveState();
+  render();
+});
+shuffleBtn.addEventListener("click", () => {
+  state.shuffle = !state.shuffle;
+  saveState();
+  render();
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Скинути весь прогрес?")) return;
+  state = defaultState();
+  saveState();
+  render();
+});
+document.getElementById("restartTodayBtn").addEventListener("click", () => {
+  state.cards.forEach(c => c.due = 0);
+  state.currentId = null;
+  state.revealed = false;
+  saveState();
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
